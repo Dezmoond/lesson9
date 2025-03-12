@@ -7,17 +7,7 @@ class Card:
         self.marked = [[False for _ in range(9)] for _ in range(3)]
 
     def generate_lotto_card(self):
-        columns = {
-            0: list(range(1, 10)),
-            1: list(range(10, 20)),
-            2: list(range(20, 30)),
-            3: list(range(30, 40)),
-            4: list(range(40, 50)),
-            5: list(range(50, 60)),
-            6: list(range(60, 70)),
-            7: list(range(70, 80)),
-            8: list(range(80, 91))
-        }
+        columns = {i: list(range(i * 10 + 1, i * 10 + 11)) for i in range(9)}
         card = [[None for _ in range(9)] for _ in range(3)]
 
         for row in card:
@@ -38,25 +28,32 @@ class Card:
 
         return card
 
-    def print_card(self):
-        for row_idx, row in enumerate(self.card):
-            print(" | ".join(
+    def __str__(self):
+        return "\n".join(
+            " | ".join(
                 f"{num:2}{'X' if self.marked[row_idx][col_idx] else ' '}"
                 if num is not None else "   "
                 for col_idx, num in enumerate(row)
-            ))
+            ) for row_idx, row in enumerate(self.card)
+        )
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __contains__(self, number):
+        return self.has_number(number)
+
+    def has_number(self, number):
+        return any(number in row for row in self.card)
+
+    def print_card(self):
+        print(str(self))
 
     def mark_number(self, number):
         for row_idx, row in enumerate(self.card):
             for col_idx, cell in enumerate(row):
                 if cell == number:
                     self.marked[row_idx][col_idx] = True
-
-    def has_number(self, number):
-        for row in self.card:
-            if number in row:
-                return True
-        return False
 
     def is_complete(self):
         return all(
@@ -90,17 +87,26 @@ class Game:
 
         self.start()
 
+    def __str__(self):
+        return f"Игра между {self.player1.owner} и {self.player2.owner}"
+
+    def __eq__(self, other):
+        return self.player1 == other.player1 and self.player2 == other.player2
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def start(self):
-        print("\nДобро пожаловать в игру ЛОТО!")
+        print(self)
         print("=" * 30)
         self.show_cards()
 
         while self.barrels:
             barrel = self.barrels.pop(0)
-
             print(f"\nБочонок номер: {barrel}")
             print("=" * 30)
 
+            # Проверка игроков поочередно
             if self.check_player(self.player1, barrel):
                 print(f"{self.player1.owner} ПОБЕДИЛ!")
                 break
@@ -128,12 +134,14 @@ class Game:
                 else:
                     print(f"Ошибка! Числа {barrel} нет на карточке {player.owner}.")
                     print(f"{player.owner} ПРОИГРАЛ!")
-                    return True
+                    print(f"{self.get_opponent(player).owner} ПОБЕДИЛ!")
+                    return True  # Игра завершается, если произошла ошибка
             elif answer == 'n':
                 if player.has_number(barrel):
                     print(f"Ошибка! Число {barrel} было на карточке {player.owner}, но не зачеркнуто.")
                     print(f"{player.owner} ПРОИГРАЛ!")
-                    return True
+                    print(f"{self.get_opponent(player).owner} ПОБЕДИЛ!")
+                    return True  # Игра завершается, если произошла ошибка
 
         return player.is_complete()
 
@@ -145,6 +153,9 @@ class Game:
         print(f"Карточка игрока: {self.player2.owner}")
         self.player2.print_card()
 
+    def get_opponent(self, player):
+        """ Возвращает противника игрока """
+        return self.player1 if player != self.player1 else self.player2
 
 def main():
     while True:

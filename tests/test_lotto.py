@@ -36,3 +36,17 @@ def test_game_creation():
     assert game.player1 is not None
     assert game.player2 is not None
     assert len(game.barrels) == 90
+
+def test_card_str():
+    card1 = Card("Тест")
+    card2 = Card("Тест")
+    assert str(card1) == str(card2)  # Проверка строкового представления
+
+def test_card_equality():
+    card1 = Card("Тест")
+    card2 = Card("Тест")
+    assert card1 == card2  # Проверка равенства
+
+def test_game_str():
+    game = Game(1)
+    assert str(game) == "Игра между Человек 1 и Человек 2"
