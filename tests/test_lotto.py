@@ -48,5 +48,5 @@ def test_card_equality():
     assert card1 == card2  # Проверка равенства
 
 def test_game_str():
-    game = Game(1)
-    assert str(game) == "Игра между Человек 1 и Человек 2"
+    game = Game(3)
+    assert str(game) == "Игра между комп 1 и комп 2"
